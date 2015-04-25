@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source D:/Nute/HandyDevices/WaterDoor/Led_hw/LedSns.sch)
-    (date "24.04.2015 10:36:23")
+    (date "25.04.2015 21:27:10")
     (tool "Eeschema (after 2015-mar-04 BZR unknown)-product")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -71,17 +71,14 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 553A0B81)))
   (libparts
-    (libpart (lib Tittar_kl) (part C)
-      (description Capacitor)
-      (footprints
-        (fp c*))
+    (libpart (lib Sensors) (part TSOP48xx)
       (fields
-        (field (name Reference) C)
-        (field (name Value) C)
-        (field (name Footprint) CAP_0603))
+        (field (name Reference) Q)
+        (field (name Value) TSOP48xx))
       (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
+        (pin (num 1) (name OUT) (type passive))
+        (pin (num 2) (name GND) (type passive))
+        (pin (num 3) (name Vs) (type passive))))
     (libpart (lib Connectors_kl) (part RJ11)
       (description "RJ-11 (6P4C) connector")
       (footprints
@@ -111,6 +108,26 @@
         (pin (num 4) (name ADJ) (type power_out))
         (pin (num 6) (name OUT) (type power_out))
         (pin (num 7) (name OUT) (type power_out))))
+    (libpart (lib Tittar_kl) (part LED)
+      (footprints
+        (fp LED*))
+      (fields
+        (field (name Reference) D)
+        (field (name Value) LED))
+      (pins
+        (pin (num A) (name A) (type passive))
+        (pin (num C) (name C) (type passive))))
+    (libpart (lib Tittar_kl) (part C)
+      (description Capacitor)
+      (footprints
+        (fp c*))
+      (fields
+        (field (name Reference) C)
+        (field (name Value) C)
+        (field (name Footprint) CAP_0603))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive))))
     (libpart (lib Tittar_kl) (part R)
       (description Resistor)
       (footprints
@@ -121,31 +138,14 @@
         (field (name Footprint) RES_0603))
       (pins
         (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
-    (libpart (lib Tittar_kl) (part LED)
-      (footprints
-        (fp LED*))
-      (fields
-        (field (name Reference) D)
-        (field (name Value) LED))
-      (pins
-        (pin (num A) (name A) (type passive))
-        (pin (num C) (name C) (type passive))))
-    (libpart (lib Sensors) (part TSOP48xx)
-      (fields
-        (field (name Reference) Q)
-        (field (name Value) TSOP48xx))
-      (pins
-        (pin (num 1) (name OUT) (type passive))
-        (pin (num 2) (name GND) (type passive))
-        (pin (num 3) (name Vs) (type passive)))))
+        (pin (num 2) (name ~) (type passive)))))
   (libraries
-    (library (logical Tittar_kl)
-      (uri D:\Libs\Kicad\Tittar_kl.lib))
-    (library (logical Connectors_kl)
-      (uri D:\Libs\Kicad\Connectors_kl.lib))
     (library (logical Power_kl)
       (uri D:\Libs\Kicad\Power_kl.lib))
+    (library (logical Connectors_kl)
+      (uri D:\Libs\Kicad\Connectors_kl.lib))
+    (library (logical Tittar_kl)
+      (uri D:\Libs\Kicad\Tittar_kl.lib))
     (library (logical Sensors)
       (uri D:\Libs\Kicad\Sensors.lib)))
   (nets

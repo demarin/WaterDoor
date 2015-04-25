@@ -10,14 +10,16 @@
 	<Document>
 		<LocalLibrary />
 		<Pcb>
-			<File path=".\WaterDoor.fsx" Folder="-1" isopened="1"/>
+			<File path=".\WaterDoor.fsx" Folder="-1" isopened="0"/>
+			<File path=".\LedSns.fsx" Folder="-1" isopened="1"/>
 		</Pcb>
 		<Import>
 			<Specctra>
 			<Path name="D:\Nute\HandyDevices\WaterDoor\WaterDoor_hw\WaterDoor.dsn"/>
+			<Path name="D:\Nute\HandyDevices\WaterDoor\Led_hw\LedSns.dsn"/>
 			</Specctra>
 		</Import>
-		<Export path="D:\Nute\HandyDevices\WaterDoor\WaterDoor_hw\"/>
+		<Export path="D:\Nute\HandyDevices\WaterDoor\Led_hw\"/>
 		<ARouteSessions>
 		</ARouteSessions>
 	</Document>
