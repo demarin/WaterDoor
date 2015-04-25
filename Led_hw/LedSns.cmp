@@ -1,0 +1,73 @@
+Cmp-Mod V01 Created by Cvpcb (after 2015-mar-04 BZR unknown)-product   date = 24.04.2015 11:17:00
+
+BeginCmp
+TimeStamp = /553A0707;
+Reference = C1;
+ValeurCmp = 0.1u;
+IdModule  = Capacitors:CAP_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /553A0AB3;
+Reference = D1;
+ValeurCmp = LED;
+IdModule  = LEDs:Through-Hole-3mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /553A3765;
+Reference = D2;
+ValeurCmp = LED;
+IdModule  = LEDs:Through-Hole-5mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /545F7A39;
+Reference = DA1;
+ValeurCmp = LM317_SO8;
+IdModule  = SO_DIL_TSSOP:SO8;
+EndCmp
+
+BeginCmp
+TimeStamp = /553A0599;
+Reference = Q1;
+ValeurCmp = TSOP48xx;
+IdModule  = Sensors:TSOP48xx;
+EndCmp
+
+BeginCmp
+TimeStamp = /545F7C8F;
+Reference = R1;
+ValeurCmp = 100R;
+IdModule  = Resistors:RES_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /545F7B44;
+Reference = R2;
+ValeurCmp = 62.5R;
+IdModule  = Resistors:RES_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /553A0B81;
+Reference = R3;
+ValeurCmp = 1k;
+IdModule  = Resistors:RES_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /553A06BF;
+Reference = R4;
+ValeurCmp = 100;
+IdModule  = Resistors:RES_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /5539FB4F;
+Reference = XL1;
+ValeurCmp = RJ11;
+IdModule  = Connectors:RJ11_TJ6_6P6C;
+EndCmp
+
+EndListe

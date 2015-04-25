@@ -1,0 +1,6 @@
+(fp_lib_table
+  (lib (name SO_DIL_TSSOP)(type KiCad)(uri D:/Libs/Kicad/SO_DIL_TSSOP.pretty)(options "")(descr ""))
+  (lib (name LEDs)(type KiCad)(uri D:/Libs/Kicad/LEDs.pretty)(options "")(descr ""))
+  (lib (name Connectors_kl)(type Legacy)(uri D:/Libs/Kicad/Connectors_kl.mod)(options "")(descr ""))
+  (lib (name Sensors)(type KiCad)(uri D:/Libs/Kicad/Sensors.pretty)(options "")(descr ""))
+)
