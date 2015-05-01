@@ -10,7 +10,16 @@
 
 #include "ChunkTypes.h"
 
-#if 0 // ============================ LED blink ================================
+#if 1 // ======================== Single LED Blink==============================
+const BaseChunk_t lsqBlink[] = {
+        {csSetup, 1},
+        {csWait, 153},
+        {csSetup, 0},
+        {csEnd}
+};
+#endif
+
+#if 0 // ========================== LED RGB blink ==============================
 const LedChunk_t lsqIdle[] = {
         {csSetup, 0, clBlack},
         {csEnd}
@@ -220,7 +229,7 @@ const LedChunk_t lsqDoorSecretKey[] = {
 
 #endif
 
-#if 1 // =========================== LED Smooth ================================
+#if 0 // =========================== LED Smooth ================================
 #define LED_TOP_BRIGHTNESS  255
 
 const LedSmoothChunk_t lsqFadeIn[] = {
@@ -242,7 +251,7 @@ const LedSmoothChunk_t lsqEnterIdle[] = {
 
 #endif
 
-#if 1 // ============================= Beeper ==================================
+#if 0 // ============================= Beeper ==================================
 #define BEEP_VOLUME     2
 
 // Type, duration_ms, freq, volume

@@ -25,7 +25,7 @@
  * APB2 freq max = 32 MHz;
  */
 
-#define CRYSTAL_FREQ_HZ     8000000     // Freq of external crystal, change accordingly
+#define CRYSTAL_FREQ_HZ     12000000    // Freq of external crystal, change accordingly
 #define HSI_FREQ_HZ         HSI_VALUE   // Freq of internal generator, not adjustable
 #define LSI_FREQ_HZ         37000       // Freq of internal generator, not adjustable
 

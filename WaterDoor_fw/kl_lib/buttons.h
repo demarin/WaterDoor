@@ -19,6 +19,8 @@
 #include "PinSnsSettings.h"
 #include "SimpleSensors.h"
 
+#if SIMPLESENSORS_ENABLED
+
 // Select required events. BtnPress is a must.
 #define BTN_RELEASE     FALSE
 #define BTN_LONGPRESS   FALSE    // Send LongPress evt
@@ -53,5 +55,7 @@ struct BtnEvtInfo_t {
 
 // Events
 extern CircBuf_t<BtnEvtInfo_t, BTNS_EVT_Q_LEN> ButtonEvtBuf;
+
+#endif
 
 #endif /* BTNS_H_ */

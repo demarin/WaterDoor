@@ -19,41 +19,17 @@
 #include "kl_lib_L15x.h"
 #endif
 
-#if 1 // ====================== Common auxilary classes ========================
-class LedChnl_t {
-public:
-    GPIO_TypeDef *PGpio;
-    uint16_t Pin;
-    void Init() const { PinSetupOut(PGpio, Pin, omPushPull); }
-    void Set(uint8_t AValue) { if(AValue != 0) PinSet(PGpio, Pin); else PinClear(PGpio, Pin); }
-    LedChnl_t(GPIO_TypeDef *APGpio, uint16_t APin) : PGpio(APGpio), Pin(APin) {}
-};
-
-template <uint32_t TopValue, Inverted_t Inverted>
-class LedChnlTmr_t : public LedChnl_t {
-public:
-    TIM_TypeDef *PTimer;
-    uint32_t TmrChnl;
-    void Set(const uint8_t AValue) const { *TMR_PCCR(PTimer, TmrChnl) = AValue; }    // CCR[N] = AValue
-    void Enable()  const { TMR_ENABLE (PTimer); }
-    void Disable() const { TMR_DISABLE(PTimer); }
-    void Init() const {
-        Timer_t::InitClock(PTimer);
-        Timer_t::InitPwm(PTimer, PGpio, Pin, TmrChnl, TopValue, Inverted);
-        Enable();
-    }
-    LedChnlTmr_t(GPIO_TypeDef *APGpio, uint16_t APin, TIM_TypeDef *APTimer, uint32_t ATmrChnl) : LedChnl_t(APGpio, APin), PTimer(APTimer), TmrChnl(ATmrChnl) {}
-};
-
+#if 1 // =========================== Common auxilary ===========================
 // TimeToWaitBeforeNextAdjustment = SmoothVar / (N+4) + 1, where N - current LED brightness.
 static inline uint32_t ICalcDelay(uint32_t CurrentBrightness, uint32_t SmoothVar) { return (uint32_t)((SmoothVar / (CurrentBrightness+4)) + 1); }
 #endif
 
 #if 1 // ========================= Single LED blinker ==========================
 #define LED_RGB_BLINKER
+
 class LedBlinker_t : public BaseSequencer_t<BaseChunk_t> {
 protected:
-    LedChnl_t IChnl;
+    PinOutputPushPull_t IChnl;
     void ISwitchOff() { Off(); }
     SequencerLoopTask_t ISetup() {
         IChnl.Set(IPCurrentChunk->Value);
@@ -61,7 +37,7 @@ protected:
         return sltProceed;  // Always proceed
     }
 public:
-    LedBlinker_t(const LedChnl_t AChnl) : BaseSequencer_t(), IChnl(AChnl) {}
+    LedBlinker_t(const PinOutputPushPull_t AChnl) : BaseSequencer_t(), IChnl(AChnl) {}
     void Init() {
         IChnl.Init();
         Off();
@@ -78,7 +54,7 @@ public:
 
 class LedSmooth_t : public BaseSequencer_t<LedSmoothChunk_t> {
 private:
-    LedChnlTmr_t<LED_TOP_VALUE, LED_INVERTED_PWM> IChnl;
+    PinOutputPWM_t<LED_TOP_VALUE, LED_INVERTED_PWM> IChnl;
     uint8_t ICurrentBrightness;
     void ISwitchOff() { SetBrightness(0); }
     SequencerLoopTask_t ISetup() {
@@ -106,7 +82,7 @@ private:
         return sltProceed;
     }
 public:
-    LedSmooth_t(const LedChnlTmr_t<LED_TOP_VALUE, LED_INVERTED_PWM> AChnl) :
+    LedSmooth_t(const PinOutputPWM_t<LED_TOP_VALUE, LED_INVERTED_PWM> AChnl) :
         BaseSequencer_t(), IChnl(AChnl), ICurrentBrightness(0) {}
     void Init() {
         IChnl.Init();
@@ -117,11 +93,11 @@ public:
 #endif
 
 
-#if 0 // ==================== RGB blinker (no smooth switch) ===================
+#if 1 // ==================== RGB blinker (no smooth switch) ===================
 #define LED_RGB_BLINKER
-class LedRgbBlinker_t : public BaseSequencer_t<LedChunk_t> {
+class LedRgbBlinker_t : public BaseSequencer_t<LedRGBChunk_t> {
 protected:
-    LedChnl_t R, G, B;
+    PinOutputPushPull_t R, G, B;
     void ISwitchOff() { SetColor(clBlack); }
     SequencerLoopTask_t ISetup() {
         SetColor(IPCurrentChunk->Color);
@@ -129,7 +105,7 @@ protected:
         return sltProceed;  // Always proceed
     }
 public:
-    LedRgbBlinker_t(const LedChnl_t ARed, const LedChnl_t AGreen, const LedChnl_t ABlue) :
+    LedRgbBlinker_t(const PinOutputPushPull_t ARed, const PinOutputPushPull_t AGreen, const PinOutputPushPull_t ABlue) :
         BaseSequencer_t(), R(ARed), G(AGreen), B(ABlue) {}
     void Init() {
         R.Init();
@@ -152,7 +128,7 @@ public:
 
 class LedRGB_t : public BaseSequencer_t<LedRGBChunk_t> {
 private:
-    LedChnlTmr_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED>  R, G, B;
+    PinOutputPWM_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED>  R, G, B;
     Color_t ICurrColor;
     void ISwitchOff() { SetColor(clBlack); }
     SequencerLoopTask_t ISetup() {
@@ -185,9 +161,9 @@ private:
     }
 public:
     LedRGB_t(
-            const LedChnlTmr_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED> ARed,
-            const LedChnlTmr_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED> AGreen,
-            const LedChnlTmr_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED> ABlue) :
+            const PinOutputPWM_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED> ARed,
+            const PinOutputPWM_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED> AGreen,
+            const PinOutputPWM_t<LED_RGB_TOP_VALUE, LED_RGB_INVERTED> ABlue) :
         BaseSequencer_t(), R(ARed), G(AGreen), B(ABlue) {}
     void Init() {
         R.Init();

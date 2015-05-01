@@ -7,6 +7,8 @@
 
 #include "SimpleSensors.h"
 
+#if SIMPLESENSORS_ENABLED
+
 SimpleSensors_t PinSensors;
 
 // ==== Sensors Thread ====
@@ -59,3 +61,5 @@ void SimpleSensors_t::ITask() {
         } // while i
     } // while true
 }
+
+#endif

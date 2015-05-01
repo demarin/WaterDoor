@@ -15,6 +15,9 @@
 #ifndef PINSNSSETTINGS_H_
 #define PINSNSSETTINGS_H_
 
+#define SIMPLESENSORS_ENABLED   FALSE
+
+#if SIMPLESENSORS_ENABLED
 #include "ch.h"
 #include "hal.h"
 #ifdef STM32F2XX
@@ -24,7 +27,6 @@
 #endif
 
 #include "main.h" // App.thd here
-#include "interface.h"
 #include "evt_mask.h"
 
 #define SNS_POLL_PERIOD_MS  72
@@ -54,7 +56,7 @@ static void ProcessMSensors(PinSnsState_t *PState, uint32_t Len) {
         App.SignalEvt(EVTMSK_MSNS_ON);
         bool Sns2 = (PState[0] == pssRising) or (PState[0] == pssHi);
         bool Sns1 = (PState[1] == pssRising) or (PState[1] == pssHi);
-        Interface.ShowMSns(Sns1, Sns2);
+     //   Interface.ShowMSns(Sns1, Sns2);
     }
 
     // Send OFF evt if one is falling and other is low
@@ -63,7 +65,7 @@ static void ProcessMSensors(PinSnsState_t *PState, uint32_t Len) {
             ) {
         bool Sns2 = (PState[0] == pssRising) or (PState[0] == pssHi);
         bool Sns1 = (PState[1] == pssRising) or (PState[1] == pssHi);
-        Interface.ShowMSns(Sns1, Sns2);
+       // Interface.ShowMSns(Sns1, Sns2);
         App.SignalEvt(EVTMSK_MSNS_OFF);
     }
 }
@@ -81,5 +83,7 @@ const PinSns_t PinSns[] = {
         {GPIOB,  5, pudPullDown, ProcessMSensors},
 };
 #define PIN_SNS_CNT     countof(PinSns)
+
+#endif
 
 #endif /* PINSNSSETTINGS_H_ */
