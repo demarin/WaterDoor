@@ -11,11 +11,10 @@
  *
  */
 
-
 #ifndef PINSNSSETTINGS_H_
 #define PINSNSSETTINGS_H_
 
-#define SIMPLESENSORS_ENABLED   FALSE
+#define SIMPLESENSORS_ENABLED   TRUE
 
 #if SIMPLESENSORS_ENABLED
 #include "ch.h"
@@ -29,7 +28,7 @@
 #include "main.h" // App.thd here
 #include "evt_mask.h"
 
-#define SNS_POLL_PERIOD_MS  72
+#define SNS_POLL_PERIOD_MS  1
 
 enum PinSnsState_t {pssLo, pssHi, pssRising, pssFalling};
 typedef void (*ftVoidPSnsStLen)(PinSnsState_t *PState, uint32_t Len);
@@ -46,41 +45,20 @@ struct PinSns_t {
 };
 
 // ================================= Settings ==================================
-// Buttons handler
-extern void ProcessButtons(PinSnsState_t *PState, uint32_t Len);
-
 // Motion sensors handler
-static void ProcessMSensors(PinSnsState_t *PState, uint32_t Len) {
-    // Send ON evt if any is rising
-    if(PState[0] == pssRising or PState[1] == pssRising) {
-        App.SignalEvt(EVTMSK_MSNS_ON);
-        bool Sns2 = (PState[0] == pssRising) or (PState[0] == pssHi);
-        bool Sns1 = (PState[1] == pssRising) or (PState[1] == pssHi);
-     //   Interface.ShowMSns(Sns1, Sns2);
-    }
-
-    // Send OFF evt if one is falling and other is low
-    else if((PState[0] == pssFalling and PState[1] == pssLo) or
-            (PState[1] == pssFalling and PState[0] == pssLo)
-            ) {
-        bool Sns2 = (PState[0] == pssRising) or (PState[0] == pssHi);
-        bool Sns1 = (PState[1] == pssRising) or (PState[1] == pssHi);
-       // Interface.ShowMSns(Sns1, Sns2);
-        App.SignalEvt(EVTMSK_MSNS_OFF);
-    }
-}
-
-#define BUTTONS_CNT     4   // Setup appropriately. Required for buttons handler
+void ProcessSensors(PinSnsState_t *PState, uint32_t Len);
 
 const PinSns_t PinSns[] = {
-        // Buttons
-        {GPIOA,  8, pudPullUp, ProcessButtons},
-        {GPIOA, 15, pudPullUp, ProcessButtons},
-        {GPIOB,  6, pudPullUp, ProcessButtons},
-        {GPIOB, 15, pudPullUp, ProcessButtons},
-        // Motion sensors
-        {GPIOB,  2, pudPullDown, ProcessMSensors},
-        {GPIOB,  5, pudPullDown, ProcessMSensors},
+        {GPIOB,  4, pudPullUp, ProcessSensors}, // SNS1
+        {GPIOB,  5, pudPullUp, ProcessSensors}, // SNS2
+        {GPIOB,  0, pudPullUp, ProcessSensors}, // SNS3
+        {GPIOB,  1, pudPullUp, ProcessSensors}, // SNS4
+        {GPIOB,  6, pudPullUp, ProcessSensors}, // SNS5
+        {GPIOB,  7, pudPullUp, ProcessSensors}, // SNS6
+        {GPIOB,  8, pudPullUp, ProcessSensors}, // SNS7
+        {GPIOB,  9, pudPullUp, ProcessSensors}, // SNS8
+        {GPIOB,  3, pudPullUp, ProcessSensors}, // SNS9
+        {GPIOB, 10, pudPullUp, ProcessSensors}, // SNS10
 };
 #define PIN_SNS_CNT     countof(PinSns)
 

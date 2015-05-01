@@ -6,7 +6,7 @@
  */
 
 #include <buttons.h>
-#if SIMPLESENSORS_ENABLED
+#if BUTTONS_ENABLED
 #include "ch.h"
 #include "evt_mask.h"
 #include "uart.h"

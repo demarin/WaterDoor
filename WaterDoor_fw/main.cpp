@@ -11,12 +11,21 @@
 #include "Sequences.h"
 #include "led.h"
 #include "kl_lib_L15x.h"
+#include "SimpleSensors.h"
 
 App_t App;
 LedBlinker_t Led({GPIOA, 0});   // Just LED to blink
 // PWM output for IR LED
 PinOutputPWM_t<1, invInverted, omOpenDrain> IRLed(GPIOB, 15, TIM11, 1);
+// 12V output
 PinOutputPushPull_t Output12V(GPIOA, 6);
+// Time for rising and falling
+struct SnsData_t {
+    systime_t TimeMoveIn, TimeMoveOut;
+    bool HasChanged;
+};
+
+SnsData_t SnsData[PIN_SNS_CNT];
 
 // Universal VirtualTimer callback
 void TmrGeneralCallback(void *p) {
@@ -50,7 +59,7 @@ int main(void) {
     IRLed.SetFrequencyHz(56000);
     IRLed.Set(1);
 
-//    PinSensors.Init();
+    PinSensors.Init();
 
     Led.Init();
     Led.StartSequence(lsqBlink);
@@ -62,61 +71,43 @@ int main(void) {
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
     while(true) {
-//        uint32_t EvtMsk = chEvtWaitAny(ALL_EVENTS);
+        uint32_t EvtMsk = chEvtWaitAny(ALL_EVENTS);
 
-        chThdSleepMilliseconds(207);
+        if(EvtMsk == EVTMSK_SNS) {
+            for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
+                if(SnsData[i].HasChanged) {
+                    SnsData[i].HasChanged = false;
+                    Uart.Printf("\rSns%02u: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
+                }
+            }
+            Uart.Printf("\r");
+        }
+
+//        chThdSleepMilliseconds(207);
 //        Output12V.SetHi();
 //        chThdSleepMilliseconds(207);
 //        Output12V.SetLo();
-#if 1 // ==== Motion sensors ====
-
-#endif
     } // while true
 }
 
-#if 1 // ===================== Load/save settings ==============================
-void App_t::LoadSettings() {
-    if(EE_PTR->ID < ID_MIN or EE_PTR->ID > ID_MAX) Settings.ID = ID_DEFAULT;
-    else Settings.ID = EE_PTR->ID;
-
-    if(EE_PTR->DurationActive_s < DURATION_ACTIVE_MIN_S or
-       EE_PTR->DurationActive_s > DURATION_ACTIVE_MAX_S
-       ) {
-        Settings.DurationActive_s = DURATION_ACTIVE_DEFAULT;
+#if 1 // ==== Motion sensors ====
+void ProcessSensors(PinSnsState_t *PState, uint32_t Len) {
+    bool HasChanged = false;
+    systime_t Now = chTimeNow();
+    for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
+        if(PState[i] == pssFalling and SnsData[i].TimeMoveOut != Now) {
+            HasChanged = true;
+            SnsData[i].TimeMoveOut = Now;
+            SnsData[i].HasChanged = true;
+        }
+        if(PState[i] == pssRising and SnsData[i].TimeMoveIn != Now) {
+            HasChanged = true;
+            SnsData[i].TimeMoveIn = Now;
+            SnsData[i].HasChanged = true;
+        }
     }
-    else Settings.DurationActive_s = EE_PTR->DurationActive_s;
-
-    Settings.DeadtimeEnabled = EE_PTR->DeadtimeEnabled;
-
-    SettingsHasChanged = false;
+    if(HasChanged) App.SignalEvt(EVTMSK_SNS);
 }
 
-void App_t::SaveSettings() {
-    chSysLock();
-    if(chVTIsArmedI(&ITmrSaving)) chVTResetI(&ITmrSaving);  // Reset timer
-    chVTSetEvtI(&ITmrSaving, S2ST(4), EVTMSK_SAVE);
-    chSysUnlock();
-}
 
-void App_t::ISaveSettingsReally() {
-    Flash_t::UnlockEE();
-    chSysLock();
-    uint8_t r = OK;
-    uint32_t *Src = (uint32_t*)&Settings;
-    uint32_t *Dst = (uint32_t*)EE_PTR;
-    for(uint32_t i=0; i<SETTINGS_SZ32; i++) {
-        r = Flash_t::WaitForLastOperation();
-        if(r != OK) break;
-        *Dst++ = *Src++;
-    }
-    Flash_t::LockEE();
-    chSysUnlock();
-    if(r == OK) {
-        Uart.Printf("\rSettings saved");
-        SettingsHasChanged = false;
-    }
-    else {
-        Uart.Printf("\rSettings saving failure");
-    }
-}
 #endif

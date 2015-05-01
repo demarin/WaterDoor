@@ -19,7 +19,8 @@
 #include "PinSnsSettings.h"
 #include "SimpleSensors.h"
 
-#if SIMPLESENSORS_ENABLED
+#define BUTTONS_ENABLED FALSE
+#if BUTTONS_ENABLED
 
 // Select required events. BtnPress is a must.
 #define BTN_RELEASE     FALSE
