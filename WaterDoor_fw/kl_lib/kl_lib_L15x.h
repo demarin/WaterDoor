@@ -340,6 +340,7 @@ static inline void PinSetupAlterFunc(
     PGpioPort->AFR[n] |= (uint32_t)AAlterFunc << Offset;
 }
 
+// Example:
 class PinOutputPushPull_t {
 public:
     GPIO_TypeDef *PGpio;

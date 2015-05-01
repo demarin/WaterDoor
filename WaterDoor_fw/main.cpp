@@ -16,6 +16,7 @@ App_t App;
 LedBlinker_t Led({GPIOA, 0});   // Just LED to blink
 // PWM output for IR LED
 PinOutputPWM_t<1, invInverted, omOpenDrain> IRLed(GPIOB, 15, TIM11, 1);
+PinOutputPushPull_t Output12V(GPIOA, 6);
 
 // Universal VirtualTimer callback
 void TmrGeneralCallback(void *p) {
@@ -53,6 +54,7 @@ int main(void) {
 
     Led.Init();
     Led.StartSequence(lsqBlink);
+    Output12V.Init();
     // Main cycle
     App.ITask();
 }
@@ -60,8 +62,12 @@ int main(void) {
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
     while(true) {
-        uint32_t EvtMsk = chEvtWaitAny(ALL_EVENTS);
-        (void)(EvtMsk);
+//        uint32_t EvtMsk = chEvtWaitAny(ALL_EVENTS);
+
+        chThdSleepMilliseconds(207);
+//        Output12V.SetHi();
+//        chThdSleepMilliseconds(207);
+//        Output12V.SetLo();
 #if 1 // ==== Motion sensors ====
 
 #endif
