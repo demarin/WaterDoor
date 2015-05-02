@@ -17,6 +17,15 @@ const BaseChunk_t lsqBlink[] = {
         {csSetup, 0},
         {csEnd}
 };
+
+const BaseChunk_t lsqBlinkRepeated[] = {
+        {csSetup, 1},
+        {csWait, 153},
+        {csSetup, 0},
+        {csWait, 999},
+        {csGoto, 0},
+        {csEnd}
+};
 #endif
 
 #if 0 // ========================== LED RGB blink ==============================
