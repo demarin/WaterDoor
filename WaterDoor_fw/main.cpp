@@ -12,6 +12,11 @@
 #include "led.h"
 #include "kl_lib_L15x.h"
 #include "SimpleSensors.h"
+#include "waterdoor.h"
+
+void setTimer();
+void openV();
+void closeV();
 
 App_t App;
 LedBlinker_t Led({GPIOA, 0});   // Just LED to blink
@@ -26,6 +31,15 @@ struct SnsData_t {
 };
 
 SnsData_t SnsData[PIN_SNS_CNT];
+
+//Need to input real data here
+double sensorsCoords[6] = {0.0, 0.0, 0.5, 0.5, 1.0, 1.0};
+
+//Initialisation with parameters of our installation
+VelociMeter velociMeter(openV,closeV,setTimer, 5.0, sensorsCoords, 6, 1.5, 2.0);
+
+systime_t timer = 0;
+bool timerOn = false;
 
 // Universal VirtualTimer callback
 void TmrGeneralCallback(void *p) {
@@ -82,6 +96,11 @@ void App_t::ITask() {
             }
             Uart.Printf("\r");
         }
+        if(timerOn && timer<=chTimeNow()){
+            velociMeter.inactivityReset();
+            timerOn = false;
+
+        }
 
 //        chThdSleepMilliseconds(207);
 //        Output12V.SetHi();
@@ -104,10 +123,59 @@ void ProcessSensors(PinSnsState_t *PState, uint32_t Len) {
             HasChanged = true;
             SnsData[i].TimeMoveIn = Now;
             SnsData[i].HasChanged = true;
+            velociMeter.processPoint((double)Now,i);
+        }
+    }
+    if(HasChanged) App.SignalEvt(EVTMSK_SNS);
+}
+void ProcessLastSensor(PinSnsState_t *PState, uint32_t Len) {
+    bool HasChanged = false;
+    systime_t Now = chTimeNow();
+    for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
+        if(PState[i] == pssFalling and SnsData[i].TimeMoveOut != Now) {
+            HasChanged = true;
+            SnsData[i].TimeMoveOut = Now;
+            SnsData[i].HasChanged = true;
+        }
+        if(PState[i] == pssRising and SnsData[i].TimeMoveIn != Now) {
+            HasChanged = true;
+            SnsData[i].TimeMoveIn = Now;
+            SnsData[i].HasChanged = true;
+            velociMeter.processLastPoint((double)Now);
+        }
+    }
+    if(HasChanged) App.SignalEvt(EVTMSK_SNS);
+}
+void ProcessExitSensor(PinSnsState_t *PState, uint32_t Len) {
+    bool HasChanged = false;
+    systime_t Now = chTimeNow();
+    for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
+        if(PState[i] == pssFalling and SnsData[i].TimeMoveOut != Now) {
+            HasChanged = true;
+            SnsData[i].TimeMoveOut = Now;
+            SnsData[i].HasChanged = true;
+        }
+        if(PState[i] == pssRising and SnsData[i].TimeMoveIn != Now) {
+            HasChanged = true;
+            SnsData[i].TimeMoveIn = Now;
+            SnsData[i].HasChanged = true;
+            velociMeter.processExitPoint();
         }
     }
     if(HasChanged) App.SignalEvt(EVTMSK_SNS);
 }
 
+void setTimer(){
+    timerOn = true;
+    timer = chTimeNow() + (systime_t)1000; //TODO: need to calculate, what should I add to wait 1 second
+}
 
+//cannot send SetHi and SetLo directly as pointers
+void closeV(){
+    Output12V.SetHi();
+
+}
+void openV(){
+    Output12V.SetLo();
+}
 #endif

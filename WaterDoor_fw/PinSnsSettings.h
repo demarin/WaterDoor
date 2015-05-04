@@ -47,6 +47,8 @@ struct PinSns_t {
 // ================================= Settings ==================================
 // Motion sensors handler
 void ProcessSensors(PinSnsState_t *PState, uint32_t Len);
+void ProcessLastSensor(PinSnsState_t *PState, uint32_t Len);
+void ProcessExitSensor(PinSnsState_t *PState, uint32_t Len);
 
 const PinSns_t PinSns[] = {
         {GPIOB,  4, pudPullUp, ProcessSensors}, // SNS1
@@ -55,10 +57,10 @@ const PinSns_t PinSns[] = {
         {GPIOB,  1, pudPullUp, ProcessSensors}, // SNS4
         {GPIOB,  6, pudPullUp, ProcessSensors}, // SNS5
         {GPIOB,  7, pudPullUp, ProcessSensors}, // SNS6
-        {GPIOB,  8, pudPullUp, ProcessSensors}, // SNS7
-        {GPIOB,  9, pudPullUp, ProcessSensors}, // SNS8
-        {GPIOB,  3, pudPullUp, ProcessSensors}, // SNS9
-        {GPIOB, 10, pudPullUp, ProcessSensors}, // SNS10
+        {GPIOB,  8, pudPullUp, ProcessLastSensor}, // SNS7
+        {GPIOB,  9, pudPullUp, ProcessLastSensor}, // SNS8
+        {GPIOB,  3, pudPullUp, ProcessExitSensor}, // SNS9
+        {GPIOB, 10, pudPullUp, ProcessExitSensor}, // SNS10
 };
 #define PIN_SNS_CNT     countof(PinSns)
 
