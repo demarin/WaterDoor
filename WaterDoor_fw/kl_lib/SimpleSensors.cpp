@@ -41,23 +41,29 @@ void SimpleSensors_t::ITask() {
         while(i < PIN_SNS_CNT) {
             // Check pin
             if(PinSns[i].IsHi()) {
-                if(States[i] == pssLo or States[i] == pssFalling) States[i] = pssRising;
+                if(States[i] == pssLo or States[i] == pssFalling){
+                    States[i] = pssRising;
+                    PinSns[i].Postprocessor(PStates, GroupLen);
+                }
                 else States[i] = pssHi;
             }
             else { // is low
-                if(States[i] == pssHi or States[i] == pssRising) States[i] = pssFalling;
+                if(States[i] == pssHi or States[i] == pssRising){
+                    States[i] = pssFalling;
+                    PinSns[i].Postprocessor(PStates, GroupLen);
+                }
                 else States[i] = pssLo;
             }
-            GroupLen++;
+            //GroupLen++;
             // Call postprocessor if this was last pin in group (or last at all)
             i++;
-            if((i >= PIN_SNS_CNT) or (PinSns[i].Postprocessor != PostProcessor)) {
+         /*   if((i >= PIN_SNS_CNT) or (PinSns[i].Postprocessor != PostProcessor)) {
                 if(PostProcessor != nullptr) PostProcessor(PStates, GroupLen);
                 // Prepare for next group
                 PostProcessor = PinSns[i].Postprocessor;
                 GroupLen = 0;
                 PStates = &States[i];
-            }
+            }*/
         } // while i
     } // while true
 }

@@ -12,6 +12,7 @@
 #define EVTMSK_NO_MASK          0
 
 #define EVTMSK_SNS              EVENT_MASK(1)
+#define EVTMSK_TIMER            EVENT_MASK(2)
 
 
 //#define EVTMSK_UART_RX_POLL     EVENT_MASK(11)

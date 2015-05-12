@@ -13,6 +13,7 @@
 #include "kl_lib_L15x.h"
 #include "SimpleSensors.h"
 #include "waterdoor.h"
+#include <stdio.h>
 
 void setTimer();
 void openV();
@@ -32,11 +33,15 @@ struct SnsData_t {
 
 SnsData_t SnsData[PIN_SNS_CNT];
 
-//Need to input real data here
-double sensorsCoords[6] = {0.0, 0.0, 0.5, 0.5, 1.0, 1.0};
+//Need to input real data here. Coordinates in meters.
+double ordinarySensorsCoords[] = {0.0, 0.0, 0.5, 0.5, 1.0, 1.0};
+double numberOfOrdinarySensors = countof(ordinarySensorsCoords);
+double lastSensorsCoord = 1.5;
+double waterCoord = 2.0;
+double requiredVelo = 5.0; //meters per second
 
 //Initialisation with parameters of our installation
-VelociMeter velociMeter(openV,closeV,setTimer, 5.0, sensorsCoords, 6, 1.5, 2.0);
+VelociMeter velociMeter(openV,closeV,setTimer, requiredVelo, ordinarySensorsCoords, numberOfOrdinarySensors, lastSensorsCoord, waterCoord);
 
 systime_t timer = 0;
 bool timerOn = false;
@@ -84,22 +89,30 @@ int main(void) {
 
 __attribute__ ((__noreturn__))
 void App_t::ITask() {
+    Uart.Printf("\rHello!");
     while(true) {
         uint32_t EvtMsk = chEvtWaitAny(ALL_EVENTS);
 
-        if(EvtMsk == EVTMSK_SNS) {
+/*        if(EvtMsk == EVTMSK_SNS) {
             for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
                 if(SnsData[i].HasChanged) {
                     SnsData[i].HasChanged = false;
-                    Uart.Printf("\rSns%02u: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
+
                 }
             }
             Uart.Printf("\r");
-        }
-        if(timerOn && timer<=chTimeNow()){
-            velociMeter.inactivityReset();
-            timerOn = false;
+        }*/
+        if(EvtMsk == EVTMSK_TIMER) {
+            while(timerOn){
+                Uart.Printf("\r Time is %u, sleep till %u, sleep for %u",chTimeNow(),timer,((int)timer-(int)chTimeNow()+50));
+                chThdSleepMilliseconds(((int)timer-(int)chTimeNow()+50));
+                if(timerOn && timer<=chTimeNow()){
+                    Uart.Printf("\r Timer is %u, and time is %u, din-don", timer, chTimeNow());
+                    timerOn = false;
+                    velociMeter.inactivityReset();
 
+                }
+            }
         }
 
 //        chThdSleepMilliseconds(207);
@@ -115,67 +128,94 @@ void ProcessSensors(PinSnsState_t *PState, uint32_t Len) {
     systime_t Now = chTimeNow();
     for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
         if(PState[i] == pssFalling and SnsData[i].TimeMoveOut != Now) {
+
             HasChanged = true;
             SnsData[i].TimeMoveOut = Now;
             SnsData[i].HasChanged = true;
+            Uart.Printf("\rSns%02u: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
+            //App.SignalEvt(EVTMSK_SNS);
         }
         if(PState[i] == pssRising and SnsData[i].TimeMoveIn != Now) {
+
             HasChanged = true;
             SnsData[i].TimeMoveIn = Now;
             SnsData[i].HasChanged = true;
+            //App.SignalEvt(EVTMSK_SNS);
+            Uart.Printf("\rSns%02u: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
             velociMeter.processPoint((double)Now,i);
         }
     }
-    if(HasChanged) App.SignalEvt(EVTMSK_SNS);
+
 }
 void ProcessLastSensor(PinSnsState_t *PState, uint32_t Len) {
     bool HasChanged = false;
     systime_t Now = chTimeNow();
     for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
         if(PState[i] == pssFalling and SnsData[i].TimeMoveOut != Now) {
+
             HasChanged = true;
             SnsData[i].TimeMoveOut = Now;
             SnsData[i].HasChanged = true;
+            Uart.Printf("\rSns%02u, last sensor: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
+            //App.SignalEvt(EVTMSK_SNS);
         }
         if(PState[i] == pssRising and SnsData[i].TimeMoveIn != Now) {
+
             HasChanged = true;
             SnsData[i].TimeMoveIn = Now;
             SnsData[i].HasChanged = true;
+            //App.SignalEvt(EVTMSK_SNS);
+            Uart.Printf("\rSns%02u, last sensor: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
             velociMeter.processLastPoint((double)Now);
         }
     }
-    if(HasChanged) App.SignalEvt(EVTMSK_SNS);
+
 }
 void ProcessExitSensor(PinSnsState_t *PState, uint32_t Len) {
     bool HasChanged = false;
     systime_t Now = chTimeNow();
     for(uint8_t i=0; i<PIN_SNS_CNT; i++) {
         if(PState[i] == pssFalling and SnsData[i].TimeMoveOut != Now) {
+
             HasChanged = true;
             SnsData[i].TimeMoveOut = Now;
             SnsData[i].HasChanged = true;
+            Uart.Printf("\rSns%02u, Exit sensor: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
+            //App.SignalEvt(EVTMSK_SNS);
         }
         if(PState[i] == pssRising and SnsData[i].TimeMoveIn != Now) {
+
             HasChanged = true;
             SnsData[i].TimeMoveIn = Now;
             SnsData[i].HasChanged = true;
+            Uart.Printf("\rSns%02u, Exit sensor: In=%u; Out=%u", i, SnsData[i].TimeMoveIn, SnsData[i].TimeMoveOut);
             velociMeter.processExitPoint();
+
         }
     }
-    if(HasChanged) App.SignalEvt(EVTMSK_SNS);
+
 }
 
 void setTimer(){
-    timerOn = true;
-    timer = chTimeNow() + (systime_t)1000; //TODO: need to calculate, what should I add to wait 1 second
+
+    timer = chTimeNow() + (systime_t)1000;
+    Uart.Printf("\r Setting timer to %u...",timer);
+    if(timerOn == false){
+        timerOn = true;
+        App.SignalEvt(EVTMSK_TIMER);
+    }
+    Uart.Printf("\r Setting timer finished");
+
 }
 
 //cannot send SetHi and SetLo directly as pointers
 void closeV(){
     Output12V.SetHi();
+    Uart.Printf("\r closig valve...");
 
 }
 void openV(){
     Output12V.SetLo();
+    Uart.Printf("\r opening valve...");
 }
 #endif
