@@ -4,9 +4,11 @@
 class VelociMeter {
 public:
     bool runFlag;
+    bool adultFlag;
     int valveClosed;
     int numberOfSensors;
     double criticalVelo;
+    double childCriticalVelo;
 
     void (*openValve)();
     void (*closeValve)();
@@ -26,12 +28,13 @@ public:
 
     LinearReg regression;
 
-    VelociMeter(void (*openFunc)(),void (*closeFunc)(),void (*timerFunc)(),double criticalVelocity, double sensorsCoords[], int sensorsNum, double lastPointCoordinate, double waterCoordinate){
+    VelociMeter(void (*openFunc)(),void (*closeFunc)(),void (*timerFunc)(),double criticalVelocity,double childCriticalVelocity, double sensorsCoords[], int sensorsNum, double lastPointCoordinate, double waterCoordinate){
         openValve = openFunc;
         closeValve = closeFunc;
         updateInactivityTimer = timerFunc;
 
         criticalVelo = criticalVelocity;
+        childCriticalVelo = childCriticalVelocity;
         coords = sensorsCoords;
         numberOfSensors = sensorsNum;
         lastCoord = lastPointCoordinate;
@@ -40,6 +43,7 @@ public:
 
     }
     void clearValues(){
+        adultFlag = false;
         runFlag = false;
         dataLength = 0;
         pPLength = 0;
@@ -51,11 +55,14 @@ public:
         updateInactivityTimer();
         data[dataLength][0] = t;
         data[dataLength][1] = sensorNum;
+        if(sensorNum%2==1){
+            adultFlag = true;
+        }
         if(dataLength<29){
             dataLength ++;
         }
         else{
-            dataLength = 0; //It is temporary cap, 'cause we don't use data now
+            dataLength = 0; //It is temporary cap, 'cause we don't use data now. Ќа самом деле это офигеть как правильно, ибо позвол€ет внедрить циклическую перезапись.
         }
         if(pPLength > 0){
             if(processedPoints[pPLength-1][1] < coords[sensorNum]){
@@ -69,7 +76,7 @@ public:
     void processLastPoint(double t){
         regression.addPoint(t,lastCoord);
         currentVelocity = regression.countK();
-        if((currentVelocity*1000.0)>criticalVelo){
+        if((currentVelocity*1000.0)>(adultFlag==true?criticalVelo:childCriticalVelo)){
             Uart.Printf("\rYou are pretty fast, it is enough to close valve.");
             closeValve();
         }

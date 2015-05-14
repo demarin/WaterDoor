@@ -39,9 +39,10 @@ double numberOfOrdinarySensors = countof(ordinarySensorsCoords);
 double lastSensorsCoord = 1.5;
 double waterCoord = 2.0;
 double requiredVelo = 5.0; //meters per second
+double requiredVeloForKids = 2.5; //meters per second
 
 //Initialisation with parameters of our installation
-VelociMeter velociMeter(openV,closeV,setTimer, requiredVelo, ordinarySensorsCoords, numberOfOrdinarySensors, lastSensorsCoord, waterCoord);
+VelociMeter velociMeter(openV,closeV,setTimer, requiredVelo, requiredVeloForKids, ordinarySensorsCoords, numberOfOrdinarySensors, lastSensorsCoord, waterCoord);
 
 systime_t timer = 0;
 bool timerOn = false;
