@@ -18,6 +18,8 @@
 void setTimer();
 void openV();
 void closeV();
+void ledTurnOff();
+void ledTurnOn();
 
 App_t App;
 LedBlinker_t Led({GPIOA, 0});   // Just LED to blink
@@ -33,6 +35,7 @@ struct SnsData_t {
 
 SnsData_t SnsData[PIN_SNS_CNT];
 
+
 //Need to input real data here. Coordinates in meters.
 double ordinarySensorsCoords[] = {0.0, 0.0, 0.5, 0.5, 1.0, 1.0};
 double numberOfOrdinarySensors = countof(ordinarySensorsCoords);
@@ -42,7 +45,7 @@ double requiredVelo = 5.0; //meters per second
 double requiredVeloForKids = 2.5; //meters per second
 
 //Initialisation with parameters of our installation
-VelociMeter velociMeter(openV,closeV,setTimer, requiredVelo, requiredVeloForKids, ordinarySensorsCoords, numberOfOrdinarySensors, lastSensorsCoord, waterCoord);
+VelociMeter velociMeter(openV,closeV,setTimer, ledTurnOn, ledTurnOff, requiredVelo, requiredVeloForKids, ordinarySensorsCoords, numberOfOrdinarySensors, lastSensorsCoord, waterCoord);
 
 systime_t timer = 0;
 bool timerOn = false;
@@ -85,6 +88,7 @@ int main(void) {
     Led.StartSequence(lsqBlink);
     Output12V.Init();
     // Main cycle
+
     App.ITask();
 }
 
@@ -219,4 +223,11 @@ void openV(){
     Output12V.SetLo();
     Uart.Printf("\r opening valve...");
 }
+void ledTurnOff(){
+    Led.Off();
+}
+void ledTurnOn(){
+    Led.On();
+}
+
 #endif

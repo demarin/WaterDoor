@@ -13,6 +13,8 @@ public:
     void (*openValve)();
     void (*closeValve)();
     void (*updateInactivityTimer)();
+    void (*goLight)();
+    void (*stopLight)();
 
     double data[30][2]; // [time, sensorNumber] for future analysis functions
     int dataLength;
@@ -28,10 +30,13 @@ public:
 
     LinearReg regression;
 
-    VelociMeter(void (*openFunc)(),void (*closeFunc)(),void (*timerFunc)(),double criticalVelocity,double childCriticalVelocity, double sensorsCoords[], int sensorsNum, double lastPointCoordinate, double waterCoordinate){
+    VelociMeter(void (*openFunc)(),void (*closeFunc)(),void (*timerFunc)(), void (*ledOn)(), void (*ledOff)(), double criticalVelocity,double childCriticalVelocity, double sensorsCoords[], int sensorsNum, double lastPointCoordinate, double waterCoordinate){
         openValve = openFunc;
         closeValve = closeFunc;
         updateInactivityTimer = timerFunc;
+        goLight = ledOn;
+        stopLight = ledOff;
+
 
         criticalVelo = criticalVelocity;
         childCriticalVelo = childCriticalVelocity;
@@ -48,11 +53,13 @@ public:
         dataLength = 0;
         pPLength = 0;
         regression.clearValues();
+        goLight();
         Uart.Printf("\r clearing values...");
 
     }
     void processPoint(double t,int sensorNum){
         updateInactivityTimer();
+        stopLight();
         data[dataLength][0] = t;
         data[dataLength][1] = sensorNum;
         if(sensorNum%2==1){
@@ -81,6 +88,7 @@ public:
             closeValve();
         }
         Uart.Printf("\rVelocity was: %d meters per second", (int)(currentVelocity*1000.0));
+        stopLight();
         updateInactivityTimer();
 
     }
