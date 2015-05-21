@@ -43,6 +43,7 @@ void SimpleSensors_t::ITask() {
             if(PinSns[i].IsHi()) {
                 if(States[i] == pssLo or States[i] == pssFalling){
                     States[i] = pssRising;
+                    Uart.Printf("\rSns%02u starting... time = %u", i, chTimeNow());
                     PinSns[i].Postprocessor(PStates, GroupLen);
                 }
                 else States[i] = pssHi;

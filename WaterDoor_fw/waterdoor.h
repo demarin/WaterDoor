@@ -5,10 +5,12 @@ class VelociMeter {
 public:
     bool runFlag;
     bool adultFlag;
+    bool lastSnsFlag;
     int valveClosed;
     int numberOfSensors;
     double criticalVelo;
     double childCriticalVelo;
+    double firstSensorTime;
 
     void (*openValve)();
     void (*closeValve)();
@@ -48,8 +50,11 @@ public:
 
     }
     void clearValues(){
+        firstSensorTime = 0;
         adultFlag = false;
         runFlag = false;
+        lastSnsFlag = false;
+
         dataLength = 0;
         pPLength = 0;
         regression.clearValues();
@@ -81,13 +86,24 @@ public:
         }
     }
     void processLastPoint(double t){
-        regression.addPoint(t,lastCoord);
-        currentVelocity = regression.countK();
-        if((currentVelocity*1000.0)>(adultFlag==true?criticalVelo:childCriticalVelo)){
-            Uart.Printf("\rYou are pretty fast, it is enough to close valve.");
-            closeValve();
+        if(lastSnsFlag == false){
+            lastSnsFlag = true;
+            if(firstSensorTime == 0){
+                firstSensorTime = t;
+                regression.addPoint(0,lastCoord);
+            }
+            else{
+                regression.addPoint((t-firstSensorTime),lastCoord);
+
+            }
+
+            currentVelocity = regression.countK();
+            if((currentVelocity*1000.0)>(adultFlag==true?criticalVelo:childCriticalVelo)){
+                Uart.Printf("\rYou are pretty fast, it is enough to close valve.");
+                closeValve();
+            }
+            Uart.Printf("\rVelocity was: %d meters per second", (int)(currentVelocity*1000.0));
         }
-        Uart.Printf("\rVelocity was: %d meters per second", (int)(currentVelocity*1000.0));
         stopLight();
         updateInactivityTimer();
 
@@ -107,20 +123,15 @@ public:
         processedPoints[pPLength][0] = t;
         processedPoints[pPLength][1] = x;
         pPLength ++;
-        regression.addPoint(t,x);
+        if(firstSensorTime == 0){
+            firstSensorTime = t;
+            regression.addPoint(0,x);
+        }
+        else{
+            regression.addPoint((t-firstSensorTime),x);
 
+        }
     }
 
 
 };
-
-/*
-char foo[32];
-char * buf = foo;
-*/
-/*
-char * doubleToStr(double doubleVar){
-    snprintf(buf, sizeof(foo), "%g", doubleVar);
-    return buf;
-}
-*/

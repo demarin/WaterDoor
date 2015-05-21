@@ -8,8 +8,8 @@ public:
     double   n;                           /* number of data points         */
     double   r;                                 /* correlation coefficient       */
     double   sumx;                        /* sum of x                      */
-    double   sumx2;                       /* sum of x**2                   */
-    double   sumxy;                       /* sum of x * y                  */
+    long double   sumx2;                       /* sum of x**2                   */
+    long double   sumxy;                       /* sum of x * y                  */
     double   sumy;                        /* sum of y                      */
     double   sumy2;                       /* sum of y**2                   */
 

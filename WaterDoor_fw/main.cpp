@@ -37,16 +37,25 @@ SnsData_t SnsData[PIN_SNS_CNT];
 
 
 //Need to input real data here. Coordinates in meters.
-double ordinarySensorsCoords[] = {0.0, 0.0, 0.5, 0.5, 1.0, 1.0};
+double ordinarySensorsCoords[] = {0.0, 0.0, 0.4, 0.4, 0.8, 0.8};
 double numberOfOrdinarySensors = countof(ordinarySensorsCoords);
-double lastSensorsCoord = 1.5;
+double lastSensorsCoord = 1.2;
 double waterCoord = 2.0;
-double requiredVelo = 5.0; //meters per second
-double requiredVeloForKids = 2.5; //meters per second
+double requiredVelo = 3.0; //meters per second
+double requiredVeloForKids = 1.5; //meters per second
 
 //Initialisation with parameters of our installation
 VelociMeter velociMeter(openV,closeV,setTimer, ledTurnOn, ledTurnOff, requiredVelo, requiredVeloForKids, ordinarySensorsCoords, numberOfOrdinarySensors, lastSensorsCoord, waterCoord);
+/*
+static WORKING_AREA(waTimerThread, 256);
+__attribute__((noreturn))
+static void TimerThread(void *arg) {
+    chRegSetThreadName("Timer");
+    launchTimer();
+}
 
+chThdCreateStatic(waTimerThread, sizeof(waTimerThread), NORMALPRIO, (tfunc_t)TimerThread, NULL);
+*/
 systime_t timer = 0;
 bool timerOn = false;
 
@@ -215,8 +224,9 @@ void setTimer(){
 
 //cannot send SetHi and SetLo directly as pointers
 void closeV(){
+    Uart.Printf("\rFinish! closig valve... time is: %u",chTimeNow());
     Output12V.SetHi();
-    Uart.Printf("\r closig valve...");
+
 
 }
 void openV(){
